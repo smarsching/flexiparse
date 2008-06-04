@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="flexiparse" default="compile">
+  
+  <property name="version" value="0.1.0"/>
+  
+  <target name="compile" description="compile classes">
+    <mkdir dir="bin"/>
+    <javac srcdir="src" destdir="bin">    
+    </javac>
+  </target>
+  
+  <target name="jars" depends="compile" description="create JARs for distribution">
+    <mkdir dir="dist"/>
+    <delete file="dist/${ant.project.name}-${version}.jar"/>
+    <jar destfile="dist/${ant.project.name}-${version}.jar">
+      <fileset dir="bin">
+        <include name="**/*"/>
+      </fileset>
+    </jar>
+    <delete file="dist/${ant.project.name}-${version}-with-sources.jar"/>
+    <jar destfile="dist/${ant.project.name}-${version}-with-sources.jar">
+      <fileset dir="src">
+        <include name="**/*"/>
+      </fileset>
+      <fileset dir="bin">
+        <include name="**/*"/>
+      </fileset>
+    </jar>
+  </target>
+  
+  <target name="javadoc" description="generate API docs">
+    <delete quiet="true">
+      <fileset dir="dist/apidocs">
+	    <include name="**/*"/>
+      </fileset>
+    </delete>
+    <mkdir dir="dist/apidocs"/>
+    <javadoc destdir="dist/apidocs" windowtitle="fleXiParse API ${version}">
+      <packageset dir="src">
+        <include name="**"/>
+        <exclude name="**/internal"/>
+      </packageset>
+      <doctitle><![CDATA[fleXiParse API ${version}]]></doctitle>
+      <header><![CDATA[<A HREF="http://projects.marsching.org/flexiparse/" STYLE="font-size:110%;">fleXiParse</A>]]></header>
+      <bottom><![CDATA[<SPAN STYLE="font-size:80%;">Copyright 2008 Sebastian Marsching</SPAN>]]></bottom>
+      <link href="http://java.sun.com/javase/6/docs/api/"/>
+    </javadoc>
+  </target>
+  
+  <target name="dist" depends="jars, javadoc" description="Create distribution files">
+  </target>
+  
+  <target name="clean" description="Delete all generated files">
+    <delete dir="dist"/>
+    <delete dir="bin"/>
+  </target>
+  
+</project>

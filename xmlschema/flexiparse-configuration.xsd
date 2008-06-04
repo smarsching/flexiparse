@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.marsching.com/2008/flexiparse/configurationNS" elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.marsching.com/2008/flexiparse/configurationNS">
+
+  <element name="configuration">
+    <complexType>
+      <sequence>
+        <element name="handler" type="tns:handlerType"></element>
+      </sequence>
+    </complexType>
+  </element>
+  
+  <complexType name="handlerType">
+    <sequence>
+      <element name="preceding-module" minOccurs="0" maxOccurs="unbounded" type="tns:nonZeroLengthString">
+      </element>
+      <element name="following-module" minOccurs="0" maxOccurs="unbounded" type="tns:nonZeroLengthString">
+      </element>
+      <element name="match" maxOccurs="unbounded" type="tns:nonZeroLengthString"></element>
+    </sequence>
+    <attribute name="id" use="optional" type="tns:nonZeroLengthString"></attribute>
+    <attribute name="class" use="required" type="tns:nonZeroLengthString"></attribute>
+    <attribute name="run-order" use="optional" default="start">
+      <simpleType>
+        <restriction base="string">
+          <enumeration value="start"></enumeration>
+          <enumeration value="end"></enumeration>
+          <enumeration value="both"></enumeration>
+        </restriction>
+      </simpleType>
+    </attribute>
+  </complexType>
+  
+  <simpleType name="nonZeroLengthString">
+    <restriction base="string">
+      <minLength value="1"></minLength>
+    </restriction>
+  </simpleType>
+  
+</schema>
