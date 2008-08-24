@@ -172,10 +172,14 @@ public class SimpleParser implements Parser {
 		for (NodeHandler handler : handlers) {
 			String handlerId = handler.getConfiguration().getIdentifier();
 			for (String s : handler.getConfiguration().getFollowingHandlers()) {
-				orderMatrix.set(handlerId, s, true);
+				if (containsHandler(handlers, s)) {
+					orderMatrix.set(handlerId, s, true);
+				}
 			}
 			for (String s : handler.getConfiguration().getPrecedingHandlers()) {
-				orderMatrix.set(s, handlerId, true);
+				if (containsHandler(handlers, s)) {
+					orderMatrix.set(s, handlerId, true);
+				}
 			}
 			if (handler.getConfiguration().getPrecedingHandlers().size() == 0
 					&& handler.getConfiguration().getFollowingHandlers().size() == 0) {
@@ -207,6 +211,15 @@ public class SimpleParser implements Parser {
 		}
 		
 		return orderedHandlers;
+	}
+	
+	private boolean containsHandler(Collection<NodeHandler> handlers, String handler) {
+		for (NodeHandler h : handlers) {
+			if (h.getConfiguration().getIdentifier().equals(handler)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private class SimpleHandlerContext implements HandlerContext {

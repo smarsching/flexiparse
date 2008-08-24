@@ -41,8 +41,6 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import com.marsching.flexiparse.configuration.HandlerConfiguration;
 import com.marsching.flexiparse.configuration.RunOrder;
 import com.marsching.flexiparse.objectree.ObjectTreeElement;
@@ -74,12 +72,12 @@ public class XMLConfigurationReader {
 			}
 
 			public String getPrefix(String namespaceURI) {
-				throw new NotImplementedException();
+				throw new UnsupportedOperationException();
 			}
 
 			@SuppressWarnings("unchecked")
 			public Iterator getPrefixes(String namespaceURI) {
-				throw new NotImplementedException();
+				throw new UnsupportedOperationException();
 			}
 			
 		});
