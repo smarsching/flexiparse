@@ -167,23 +167,32 @@ public class SimpleParser implements Parser {
 			Collection<NodeHandler> handlers) throws ParserConfigurationException {
 		ArrayList<NodeHandler> orderedHandlers = new ArrayList<NodeHandler>();
 		ArrayList<String> order = new ArrayList<String>();
+		ArrayList<String> noExplicitDependencyHandlers = new ArrayList<String>();
 		Map2D<String, String, Boolean> orderMatrix = new Map2D<String, String, Boolean>(false);
 		// Fill matrix
 		for (NodeHandler handler : handlers) {
 			String handlerId = handler.getConfiguration().getIdentifier();
+		    
+			// This flag is true, if a handler does not specify dependencies.
+			// However, other handlers might still depend on this handler.
+			boolean noDependencies = true;
 			for (String s : handler.getConfiguration().getFollowingHandlers()) {
 				if (containsHandler(handlers, s)) {
 					orderMatrix.set(handlerId, s, true);
+					noDependencies = false;
 				}
 			}
 			for (String s : handler.getConfiguration().getPrecedingHandlers()) {
 				if (containsHandler(handlers, s)) {
 					orderMatrix.set(s, handlerId, true);
+					noDependencies = false;
 				}
 			}
-			if (handler.getConfiguration().getPrecedingHandlers().size() == 0
-					&& handler.getConfiguration().getFollowingHandlers().size() == 0) {
-				order.add(handlerId);
+			if (noDependencies) {
+				// No explicit dependencies, so handler might not be added to the
+				// dependency matrix. Save in extra list to be able to add the
+				// handler later.
+				noExplicitDependencyHandlers.add(handlerId);
 			}
 		}
 		// Find module that does not have any "following" requirements
@@ -198,6 +207,12 @@ public class SimpleParser implements Parser {
 			}
 			if (orderMatrix.getRows().size() == startSize) {
 				throw new ParserConfigurationException("Cannot handle cyclic module dependencies.");
+			}
+		}
+		
+		for (String handlerId : noExplicitDependencyHandlers) {
+			if (!order.contains(handlerId)) {
+				order.add(handlerId);
 			}
 		}
 		
