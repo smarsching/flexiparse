@@ -1,0 +1,120 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.marsching.flexiparse</groupId>
+  <artifactId>flexiparse</artifactId>
+  <packaging>jar</packaging>
+  <version>0.2.0-SNAPSHOT</version>
+  <name>fleXiParse</name>
+  <description>
+    fleXiParse is a DOM based extensible XML parser framework.
+  </description>
+  <url>http://projects.marsching.org/flexiparse/</url>
+  <inceptionYear>2008</inceptionYear>
+  <licenses>
+    <license>
+      <name>GNU Lesser General Public License Version 3</name>
+      <url>http://www.gnu.org/licenses/lgpl.html</url>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <name>Sebastian Marsching</name>
+    </developer>
+  </developers>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.agilejava.docbkx</groupId>
+        <artifactId>docbkx-maven-plugin</artifactId>
+        <dependencies>
+          <dependency>
+            <groupId>org.docbook</groupId>
+            <artifactId>docbook-xml</artifactId>
+            <version>4.4</version>
+            <scope>runtime</scope>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate-html</goal>
+            </goals>
+            <phase>pre-site</phase>
+          </execution>
+        </executions>
+        <configuration>
+          <xincludeSupported>true</xincludeSupported>
+          <sectionAutolabel>true</sectionAutolabel>
+          <sectionAutolabelMaxDepth>2</sectionAutolabelMaxDepth>
+          <sectionLabelIncludesComponentLabel>true</sectionLabelIncludesComponentLabel>
+          <htmlCleanup>true</htmlCleanup>
+          <useExtensions>true</useExtensions>
+          <textinsertExtension>true</textinsertExtension>
+          <linenumberingExtension>true</linenumberingExtension>
+          <graphicsizeExtension>true</graphicsizeExtension>
+          <highlightSource>true</highlightSource>
+          <admonGraphics>true</admonGraphics>
+          <admonGraphicsPath>images/docbook</admonGraphicsPath>
+          <htmlStylesheet>css/style.css</htmlStylesheet>
+          <tocSectionDepth>2</tocSectionDepth>
+          <postProcess>
+            <copy todir="target/docbkx/html">
+              <fileset dir="src/docbkx">
+                <include name="css/**/*"/>
+                <include name="images/**/*"/>
+              </fileset>
+            </copy>
+          </postProcess>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <excludePackageNames>*.internal</excludePackageNames>
+        </configuration>
+      </plugin>
+      <!--
+      Checkstyle is not completely Java 5 compatible yet.
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+      -->
+    </plugins>
+  </reporting>
+
+</project>

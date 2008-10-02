@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+<book version="5.0" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0CR7/xsd/docbook.xsd"
+>
+  <info>
+    <title>fleXiParse Manual</title>
+    <copyright>
+      <year>2008</year>
+      <holder>Sebastian Marsching</holder>
+    </copyright>
+    <author>
+      <personname>
+        <firstname>Sebastian</firstname>
+        <surname>Marsching</surname>
+      </personname>
+    </author>
+  </info>
+  
+  <chapter xml:id="introduction">
+    <title>Introduction</title>
+    <para>
+      fleXiParse is a framework for writing XML parsers. It is based
+      on Java's DOM (Document Object Model) and XPath implementation.
+      It uses a visitor pattern, where the user can define
+      <classname>NodeHandler</classname>s whose 
+      <methodname>handleNode</methodname> is called for each DOM node
+      matching one of the <classname>XPathExpression</classname>s 
+      provided by the <classname>NodeHandler</classname>'s 
+      configuration.  
+    </para>
+    <para>
+      Handlers can store objects in a tree managed by the parser 
+      framework. The framework creates a node in the object tree for
+      each element in the source document. Different handlers can 
+      communicate with each other by storing object in the tree and
+      retrieving them from it. The final state of the object tree 
+      represents the result of the parsing process and is therefore
+      returned to the code calling the parser.
+    </para>
+  </chapter>
+  
+  <chapter xml:id="parser">
+    <title>Parser</title>
+    <section xml:id="parser.types">
+      <title>Parser Types</title>
+      <para>
+        All parsers implement the <interfacename>com.marsching.flexiparse.parser.Parser</interfacename>
+        interface. This interface contains the methods needed to parse a
+        document and to add <interfacename>NodeHandler</interfacename>s to
+        the parser. <classname>SimpleParser</classname> is a simple
+        implementation that is used as a base for more complex 
+        implementations.
+      </para>
+      <para>
+        <classname>XMLConfiguredParser</classname> extends the 
+        <classname>SimpleParser</classname> class with methods for adding
+        <interfacename>NodeHandler</interfacename>s that are configured 
+        in an <link linkend="handlerconfiguration">XML file</link>.
+        <classname>ClasspathConfiguredParser</classname> reads these
+        XML files from a specified location within in the class path and is
+        therefore well suited for building an extensible parser. New handlers 
+        can be simply added by placing a JAR in the classpath that contains the
+        handlers and the XML configuration file at the right location.
+      </para>
+    </section>
+    <section xml:id="parser.use">
+      <title>Using a Parser</title>
+      <para>
+        In the following example we will show how to instantiate and use a
+        <classname>ClasspathConfiguredParser</classname>. The process is 
+        basically the same for other parser implementations. However, handlers 
+        have to be added explicitly when using another implementation.
+      </para>
+<programlisting language="java"><![CDATA[
+Parser parser = 
+    new ClasspathConfiguredParser("com/example/myhandlers.xml");
+ObjectTreeElement result = parser.parse(new File("test.xml"));
+]]></programlisting>
+      <para>
+        This code first creates an instance of <classname>ClasspathConfiguredParser</classname>
+        using the configuration path <literal>com/example/myhandlers.xml</literal>.
+        This means that the handler configuration is expected in a file called 
+        <filename>myhandlers.xml</filename> that is in the 
+        <package>com.example</package> package of the class path.
+      </para>
+      <para>
+        Then the parsers's <methodname>parse</methodname> method is called to
+        parse a file called <filename>test.xml</filename> and the root node of 
+        the resulting object tree is assigned to the <varname>result</varname> 
+        variable which can be used to get objects from the tree that have been 
+        attached by the handlers during the parsing process.
+      </para>
+    </section>
+  </chapter>
+  
+  <chapter xml:id="handlerconfiguration">
+    <title>Handler XML Configuration Format</title>
+    <para>
+      The XML file containing the handler configuration has a very simple
+      format:
+    </para>
+<programlisting language="xml"><![CDATA[
+<configuration
+  xmlns="http://www.marsching.com/2008/flexiparse/configurationNS"
+  xmlns:x="http://www.example.com/exampleNS"
+  xmlns:xsi="http://http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.marsching.com/2008/flexiparse/configurationNS 
+    http://www.marsching.com/2008/flexiparse/flexiparse-configuration.xsd
+  "
+>
+  <handler class="com.example.MyHandler">
+    <match>/x:addressbook/x:person/x:</match>
+  </handler>
+</configuration>
+]]></programlisting>
+  </chapter>
+  
+  <!-- 
+  <xi:include href="reference/preface.xml" />
+  <xi:include href="reference/installation.xml" />
+  <xi:include href="reference/architecture.xml" />
+  <xi:include href="reference/configuration.xml" />
+  <xi:include href="reference/xslt.xml" />
+  <xi:include href="reference/concepts.xml" />
+  <xi:include href="reference/advancedtopics.xml" />
+  <xi:include href="reference/module-support.xml" />
+  <xi:include href="reference/glossary.xml" />
+  -->
+
+</book>
