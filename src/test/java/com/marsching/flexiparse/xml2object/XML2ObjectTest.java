@@ -52,6 +52,7 @@ public class XML2ObjectTest {
         ClasspathConfiguredParser parser = new ClasspathConfiguredParser("com/marsching/flexiparse/xml2object/test_missing_required_attribute_config.xml");
         ObjectTreeElement root = parser.parse(this.getClass().getClassLoader().getResourceAsStream("com/marsching/flexiparse/xml2object/test_missing_required_attribute_document.xml"));
         Collection<TestObjectA> coll = root.getObjectsOfTypeFromSubTree(TestObjectA.class);
+        @SuppressWarnings("unused")
         TestObjectA a = coll.iterator().next();
     }
     
