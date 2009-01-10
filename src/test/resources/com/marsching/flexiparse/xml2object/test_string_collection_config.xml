@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration
+  xmlns="http://www.marsching.com/2008/flexiparse/configurationNS"
+  xmlns:test="http://example.com/test"
+  xmlns:xo="http://www.marsching.com/2008/flexiparse/xml2objectNS"
+  xmlns:xsi="http://http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.marsching.com/2008/flexiparse/configurationNS xmlschema/flexiparse-configuration.xsd http://www.marsching.com/2008/flexiparse/xml2objectNS xmlschema/flexiparse-xml2object.xsd"
+>
+  
+  <xo:element name="test:collection" target-type="java.util.LinkedList">
+    <xo:element name="test:entry" target-attribute="!collectionentry" occurrence="0..n">
+      <xo:attribute name="value" target-attribute="!parent"/>
+    </xo:element>
+  </xo:element>
+  
+</configuration>

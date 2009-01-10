@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map xmlns="http://example.com/test">
+  <entry key="test1" value="foo1"/>
+  <entry key="test2" value="foo2"/>
+</map>

@@ -1,5 +1,5 @@
 /* 
- * fleXiParse - Copyright 2008 Sebastian Marsching
+ * fleXiParse - Copyright 2008-2009 Sebastian Marsching
  * 
  * This file is part of fleXiParse.
  * 
@@ -14,7 +14,7 @@
  * GNU Lesser General Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser General Public License
- * along with fleXiParse.  If not, see <http://www.gnu.org/licenses/>. 
+ * along with fleXiParse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.marsching.flexiparse.parser;
@@ -33,7 +33,7 @@ import com.marsching.flexiparse.parser.exception.ParserException;
  * @see XMLConfigurationReader
  */
 public class XMLConfiguredParser extends SimpleParser {
-	private XMLConfigurationReader reader = new XMLConfigurationReader();
+	private XMLConfigurationReader reader = new XMLConfigurationReader(this);
 	
 	/**
 	 * Adds all handlers specified in the configuration file to this
@@ -44,10 +44,7 @@ public class XMLConfiguredParser extends SimpleParser {
 	 *   configuration file
 	 */
 	public void addConfigurationSource(InputSource configurationSource) throws ParserException {
-		Collection<NodeHandler> handlers = reader.readConfiguration(configurationSource);
-		for (NodeHandler handler : handlers) {
-			this.addNodeHandler(handler);
-		}	
+		reader.readConfiguration(configurationSource);
 	}
 	
 	/**
@@ -60,10 +57,7 @@ public class XMLConfiguredParser extends SimpleParser {
 	 */
 	public void addConfigurationSources(Collection<? extends InputSource> configurationSources) throws ParserException {
 		for (InputSource source : configurationSources) {
-			Collection<NodeHandler> handlers = reader.readConfiguration(source);
-			for (NodeHandler handler : handlers) {
-				this.addNodeHandler(handler);
-			}
+			reader.readConfiguration(source);
 		}		
 	}
 	

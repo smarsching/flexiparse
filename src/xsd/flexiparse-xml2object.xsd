@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema 
+  targetNamespace="http://www.marsching.com/2008/flexiparse/xml2objectNS"
+  elementFormDefault="qualified"
+  xmlns="http://www.w3.org/2001/XMLSchema"
+  xmlns:tns="http://www.marsching.com/2008/flexiparse/xml2objectNS"
+>
+  
+  <element name="Element" type="tns:rootElementMappingType"></element>
+  
+  <complexType name="genericMappingType">
+    <attribute name="name" use="required">
+      <annotation>
+        <documentation>
+          Local name of the tag or attribute in the target namespace.
+        </documentation>
+      </annotation>
+    </attribute>
+    <attribute name="target-type" default="java.lang.String">
+      <annotation>
+        <documentation>
+          Specifies the target type this tag is mapped to.
+          Defaults to "java.lang.String".
+        </documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+  
+  <complexType name="genericElementMappingType">
+    <annotation>
+      <documentation>
+        Defines the mapping of a tag to a target type.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:genericMappingType">
+        <sequence>
+          <element name="element" type="tns:childElementMappingType" minOccurs="0" maxOccurs="unbounded"></element>
+          <element name="attribute" type="tns:attributeMappingType" minOccurs="0" maxOccurs="unbounded"></element>
+        </sequence>
+        <attribute name="deep-search" use="optional" default="false">
+          <annotation>
+            <documentation>
+              If set to "true", the parser will consider not only direct
+              child elements but other descendant elements, too.
+            </documentation>
+          </annotation>
+          <simpleType>
+            <restriction base="string">
+              <enumeration value="true"/>
+              <enumeration value="false"/>
+            </restriction>
+          </simpleType>
+        </attribute>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <complexType name="rootElementMappingType">
+    <annotation>
+      <documentation>
+        Defines the mapping of a tag to a target type.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:genericElementMappingType">
+        <attribute name="target-attribute" use="optional">
+          <annotation>
+            <documentation>
+              Name of the corresponding attribute in the target Java class.
+            </documentation>
+          </annotation>
+        </attribute>
+        <attribute name="occurrence" use="optional" default="0..1">
+          <simpleType>
+            <annotation>
+              <documentation>
+                Defines how many times a mapped element may appear.
+              </documentation>
+            </annotation>
+            <restriction base="string">
+              <enumeration value="0..1"/>
+              <enumeration value="0..n"/>
+            </restriction>
+          </simpleType>
+        </attribute>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <complexType name="childElementMappingType">
+    <annotation>
+      <documentation>
+        Defines the mapping of a tag to a target type.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:genericElementMappingType">
+        <attribute name="target-attribute" use="required">
+          <annotation>
+            <documentation>
+              Name of the corresponding attribute in the target Java class.
+            </documentation>
+          </annotation>
+        </attribute>
+        <attribute name="occurrence" use="optional" default="0..1">
+          <simpleType>
+            <annotation>
+              <documentation>
+                Defines how many times a mapped element may appear.
+              </documentation>
+            </annotation>
+            <restriction base="string">
+              <enumeration value="1"/>
+              <enumeration value="0..1"/>
+              <enumeration value="1..n"/>
+              <enumeration value="0..n"/>
+            </restriction>
+          </simpleType>
+        </attribute>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <complexType name="attributeMappingType">
+    <annotation>
+      <documentation>
+        Defines the mapping of an attribute to a target type.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="tns:genericMappingType">
+        <attribute name="occurrence" use="optional" default="0..1">
+          <simpleType>
+            <annotation>
+              <documentation>
+                Defines whether a mapped attribute is mandatory or optional.
+              </documentation>
+            </annotation>
+            <restriction base="string">
+              <enumeration value="1"/>
+              <enumeration value="0..1"/>
+            </restriction>
+          </simpleType>
+        </attribute>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+  <simpleType name="occurrenceAttributeType">
+    <annotation>
+      <documentation>
+        Defines how many times a mapped element may appear.
+      </documentation>
+    </annotation>
+    <restriction base="string">
+      <enumeration value="1"/>
+      <enumeration value="0..1"/>
+      <enumeration value="1..n"/>
+      <enumeration value="0..n"/>
+    </restriction>
+  </simpleType>
+  
+</schema>

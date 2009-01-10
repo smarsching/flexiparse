@@ -1,5 +1,5 @@
 /* 
- * fleXiParse - Copyright 2008 Sebastian Marsching
+ * fleXiParse - Copyright 2008-2009 Sebastian Marsching
  * 
  * This file is part of fleXiParse.
  * 
@@ -14,7 +14,7 @@
  * GNU Lesser General Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser General Public License
- * along with fleXiParse.  If not, see <http://www.gnu.org/licenses/>. 
+ * along with fleXiParse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.marsching.flexiparse.parser;
@@ -42,6 +42,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -49,11 +50,14 @@ import org.xml.sax.SAXException;
 
 import com.marsching.flexiparse.configuration.RunOrder;
 import com.marsching.flexiparse.objectree.DefaultMutableObjectTreeElement;
+import com.marsching.flexiparse.objectree.DisableParsingFlag;
 import com.marsching.flexiparse.objectree.MutableObjectTreeElement;
 import com.marsching.flexiparse.objectree.ObjectTreeElement;
 import com.marsching.flexiparse.parser.exception.ParserConfigurationException;
 import com.marsching.flexiparse.parser.exception.ParserException;
 import com.marsching.flexiparse.parser.internal.Map2D;
+import com.marsching.flexiparse.xml2object.configuration.ElementMappingConfiguration;
+import com.marsching.flexiparse.xml2object.parser.XML2ObjectNodeHandler;
 
 /**
  * Simple implementation of the {@link Parser} interface. Parses a
@@ -70,6 +74,8 @@ public class SimpleParser implements Parser {
 	 * Stores node handlers configured for this parser
 	 */
 	protected LinkedHashSet<NodeHandler> nodeHandlers = new LinkedHashSet<NodeHandler>();
+	
+	protected LinkedHashSet<ElementMappingConfiguration> mappingConfigurations = new LinkedHashSet<ElementMappingConfiguration>();
 	
 	/**
 	 * Document builder instance used for XML operations by this parser
@@ -91,7 +97,9 @@ public class SimpleParser implements Parser {
 	}
 	
 	public ObjectTreeElement parse(Document doc, Object... rootObjects) throws ParserException {
-		Map<XPathExpression, ? extends Collection<NodeHandler>> xpathMap = prepareXPath(nodeHandlers);
+	    LinkedHashSet<NodeHandler> extendedNodeHandlers = new LinkedHashSet<NodeHandler>(nodeHandlers);
+	    extendedNodeHandlers.add(new XML2ObjectNodeHandler(mappingConfigurations));
+		Map<XPathExpression, ? extends Collection<NodeHandler>> xpathMap = prepareXPath(extendedNodeHandlers);
 		nodeToStartNodeHandlers = createNodeToHandlerMap(doc, xpathMap, RunOrder.START);
 		nodeToEndNodeHandlers = createNodeToHandlerMap(doc, xpathMap, RunOrder.END);
 		currentNode = new DefaultMutableObjectTreeElement(null);
@@ -121,9 +129,18 @@ public class SimpleParser implements Parser {
 			currentNode = newNode;
 			try {
 				callNodeHandlers(node, startNodeHandlers, RunOrder.START);
-				NodeList children = node.getChildNodes();
-				for (int i = 0; i < children.getLength(); i++) {
-					handleNode(children.item(i));
+				if (currentNode.getObjectsOfType(DisableParsingFlag.class).isEmpty()) {
+				    // Attributes have to be handled explicitly
+				    NamedNodeMap attrMap = ((Element) node).getAttributes();
+				    for (int i = 0; i < attrMap.getLength(); i++) {
+				        handleNode(attrMap.item(i));
+				    }
+				    // Handle child nodes after attributes
+				    NodeList children = node.getChildNodes();
+    				for (int i = 0; i < children.getLength(); i++) {
+    					handleNode(children.item(i));
+    				}
+    				
 				}
 				callNodeHandlers(node, endNodeHandlers, RunOrder.END);
 			} finally {
@@ -329,4 +346,16 @@ public class SimpleParser implements Parser {
 			throw new ParserException("Error while reading document " + inputSource.toString(), e);
 		}
 	}
+
+    public void addElementMappingConfiguration(ElementMappingConfiguration configuration) {
+        mappingConfigurations.add(configuration);
+    }
+
+    public Collection<? extends ElementMappingConfiguration> getElementMappingConfigurations() {
+        return Collections.unmodifiableCollection(mappingConfigurations);
+    }
+
+    public boolean removeElementMappingConfiguration(ElementMappingConfiguration configuration) {
+        return mappingConfigurations.remove(configuration);
+    }
 }

@@ -1,5 +1,5 @@
 /* 
- * fleXiParse - Copyright 2008 Sebastian Marsching
+ * fleXiParse - Copyright 2008-2009 Sebastian Marsching
  * 
  * This file is part of fleXiParse.
  * 
@@ -28,6 +28,7 @@ import org.xml.sax.InputSource;
 
 import com.marsching.flexiparse.objectree.ObjectTreeElement;
 import com.marsching.flexiparse.parser.exception.ParserException;
+import com.marsching.flexiparse.xml2object.configuration.ElementMappingConfiguration;
 
 /**
  * Parsers parse XML files and produce object trees .
@@ -73,6 +74,34 @@ public interface Parser {
 	 * @return node handlers for this parser
 	 */
 	public Collection<? extends NodeHandler> getNodeHandlers();
+	
+	/**
+	 * Adds an element mapping configuration to this parser.
+	 * Element mappings are used by the xml2object code to automatically
+	 * create objects from the XML tree without having to explicitly write
+	 * a handler.
+	 * 
+	 * @param configuration mapping configuration that is going to be 
+	 *   used by this parser
+	 */
+	public void addElementMappingConfiguration(ElementMappingConfiguration configuration);
+	
+	/**
+	 * Removes an element mapping configuration from this parser. 
+	 * 
+	 * @param configuration mapping configuration that should be removed
+	 * @return <code>true</code> if the mapping configuration has been removed,
+     *   <code>false</code> otherwise
+	 */
+	public boolean removeElementMappingConfiguration(ElementMappingConfiguration configuration);
+	
+	/**
+	 * Returns all element mapping configurations that are active for this 
+	 * parser.
+	 * 
+	 * @return all element mapping configurations known by this parser
+	 */
+	public Collection<? extends ElementMappingConfiguration> getElementMappingConfigurations();
 	
 	/**
 	 * Parses a DOM document.

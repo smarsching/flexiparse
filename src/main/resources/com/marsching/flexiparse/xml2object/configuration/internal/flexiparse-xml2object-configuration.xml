@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration
+  xmlns="http://www.marsching.com/2008/flexiparse/configurationNS"
+  xmlns:xo="http://www.marsching.com/2008/flexiparse/xml2objectNS"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.marsching.com/2008/flexiparse/configurationNS http://www.marsching.com/2008/flexiparse/flexiparse-configuration.xsd"
+>
+  
+  <handler class="com.marsching.flexiparse.xml2object.configuration.internal.ElementMappingHandler" run-order="both">
+    <match>//xo:element</match>
+  </handler>
+  
+  <handler class="com.marsching.flexiparse.xml2object.configuration.internal.AttributeMappingHandler" run-order="start">
+    <match>//xo:attribute</match>
+  </handler>
+  
+</configuration>
