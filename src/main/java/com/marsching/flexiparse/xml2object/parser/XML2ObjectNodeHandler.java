@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.xpath.XPath;
@@ -46,6 +47,7 @@ import com.marsching.flexiparse.parser.exception.ParserException;
 import com.marsching.flexiparse.xml2object.configuration.AttributeMappingConfiguration;
 import com.marsching.flexiparse.xml2object.configuration.ElementMappingConfiguration;
 import com.marsching.flexiparse.xml2object.configuration.MappingConfiguration;
+import com.marsching.flexiparse.xml2object.configuration.TextMappingConfiguration;
 
 
 /**
@@ -95,6 +97,7 @@ public class XML2ObjectNodeHandler implements NodeHandler {
                 try {
                     expressions.add(xpath.compile("//*"));
                     expressions.add(xpath.compile("//@*"));
+                    expressions.add(xpath.compile("//text()"));
                 } catch (XPathExpressionException e) {
                     throw new RuntimeException("Error while compiling XPath expressions", e);
                 }
@@ -111,10 +114,20 @@ public class XML2ObjectNodeHandler implements NodeHandler {
                 handleElementStart(context, (Element) node);
             } else if (node.getNodeType() == Node.ATTRIBUTE_NODE) {
                 handleAttribute(context, (Attr) node);
+            } else if (node.getNodeType() == Node.TEXT_NODE) {
+                handleTextNode(context);
             }
         } else if (context.getRunOrder() == RunOrder.END) {
+            XML2ObjectInfo info = null;
+            Collection<? extends XML2ObjectInfo> infos = context.getObjectTreeElement().getObjectsOfType(XML2ObjectInfo.class);
+            if (infos.isEmpty()) {
+                return;
+            } else {
+                info = infos.iterator().next();
+            }
             if (node.getNodeType() == Node.ELEMENT_NODE) {
-                handleElementEnd(context, (Element) node);
+                handleTextContent(context, (Element) node, info);
+                handleElementEnd(context, (Element) node, info);
             }
         }
     }
@@ -140,15 +153,8 @@ public class XML2ObjectNodeHandler implements NodeHandler {
         ote.addObject(info);
     }
 
-    private void handleElementEnd(HandlerContext context, Element element) throws ParserException {
+    private void handleElementEnd(HandlerContext context, Element element, XML2ObjectInfo info) throws ParserException {
         ObjectTreeElement ote = context.getObjectTreeElement();
-        XML2ObjectInfo info = null;
-        Collection<? extends XML2ObjectInfo> infos = ote.getObjectsOfType(XML2ObjectInfo.class);
-        if (infos.isEmpty()) {
-            return;
-        } else {
-            info = infos.iterator().next();
-        }
         Object obj = createObjectFromInfo(info);
         if (info.parentInfo != null) {
             String targetAttribute = info.configuration.getTargetAttribute(); 
@@ -193,6 +199,66 @@ public class XML2ObjectNodeHandler implements NodeHandler {
         // Max occurs do not have to be checked, as an attribute can only
         // appear once per element
         storeAttribute(parentInfo.objectAttributes, mappingConfig.getTargetAttribute(), obj);
+    }
+    
+    private void handleTextNode(HandlerContext context) {
+        ObjectTreeElement ote = context.getObjectTreeElement();
+        XML2ObjectInfo parentInfo = null;
+        Collection<? extends XML2ObjectInfo> infos = ote.getObjectsOfType(XML2ObjectInfo.class);
+        if (infos.isEmpty()) {
+            // If there is no parent info, object mapping is not active
+            // for the attribute's element and the attribute can be safely
+            // ignored.
+            return;
+        } else {
+            parentInfo = infos.iterator().next();
+        }
+        parentInfo.textContent.add(context.getNode().getNodeValue());
+    }
+    
+    private void handleTextContent(HandlerContext context, Element element, XML2ObjectInfo info) throws ParserException {
+        if (info.textContent == null) {
+            return;
+        }
+        TextMappingConfiguration config = null;
+        for (MappingConfiguration mc : info.configuration.getChildMappings()) {
+            if (mc instanceof TextMappingConfiguration) {
+                config = (TextMappingConfiguration) mc;
+                break;
+            }
+        }
+        if (config == null) {
+            return;
+        }
+        boolean ignoreWhiteSpace = config.getIgnoreWhiteSpaceNodes();
+        int count = 0;
+        if (config.getAppend()) {
+            StringBuffer concat = null;
+            for (String str : info.textContent) {
+                if (!ignoreWhiteSpace || str.trim().length() != 0) {
+                    if (concat == null) {
+                        concat = new StringBuffer();
+                    }
+                    concat.append(str);
+                    count++;
+                }
+            }
+            if (concat != null) {
+                Object obj = createObjectFromString(config.getTargetType(), concat.toString());
+                storeAttribute(info.objectAttributes, config.getTargetAttribute(), obj);
+            }
+        } else {
+            for (String str : info.textContent) {
+                if (!ignoreWhiteSpace || str.trim().length() != 0) {
+                    Object obj = createObjectFromString(config.getTargetType(), str);
+                    storeAttribute(info.objectAttributes, config.getTargetAttribute(), obj);
+                    count++;
+                }
+            }
+        }
+        if (config.getMaxOccurs() != -1 && count > config.getMaxOccurs()) {
+            throw new ParserException("Found " + count + " text nodes for element " + info.configuration.getElementName() + " [" + info.configuration.getElementNamespace() + "] but expected a maximum of " + config.getMaxOccurs() + " nodes");
+        }
     }
     
     private ElementMappingConfiguration findElementMapping(Collection<? extends MappingConfiguration> mappings, Element element) {
@@ -423,6 +489,7 @@ public class XML2ObjectNodeHandler implements NodeHandler {
         public XML2ObjectInfo parentInfo = null;
         public ElementMappingConfiguration configuration;
         public HashMap<String, Object> objectAttributes = new HashMap<String, Object>();
+        public List<String> textContent = new LinkedList<String>();
         public HashMap<MappingConfiguration, Integer> nodeCount = new HashMap<MappingConfiguration, Integer>();
     }
     

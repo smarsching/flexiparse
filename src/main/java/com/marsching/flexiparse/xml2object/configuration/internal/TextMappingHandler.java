@@ -27,28 +27,24 @@ import com.marsching.flexiparse.parser.exception.ParserConfigurationException;
 import com.marsching.flexiparse.parser.exception.ParserException;
 
 
-public class AttributeMappingHandler extends MappingHandler implements ParsingHandler {
+public class TextMappingHandler extends MappingHandler implements ParsingHandler {
     
     public void handleNode(HandlerContext context) throws ParserException {
-        AttributeMappingConfigurationImpl config = new AttributeMappingConfigurationImpl();
+        TextMappingConfigurationImpl config = new TextMappingConfigurationImpl();
         Element element = (Element) context.getNode();
         config.setTargetType(getTargetType(element));
         String targetAttribute = getTargetAttribute(element);
         // "target attribute" attribute is mandatory for child configurations
         if (targetAttribute.length() == 0) {
-            throw new ParserConfigurationException("target-attribute attribute is mandatory for attribute mapping configurations");
+            throw new ParserConfigurationException("\"target-attribute\" attribute is mandatory for text mappings");
         }
         config.setTargetAttribute(targetAttribute);
         config.setMinOccurs(getMinOccurs(element));
         config.setMaxOccurs(getMaxOccurs(element));
-        String attributeQName = element.getAttribute("name");
-        String attributeName = convertQNameToLocalName(attributeQName);
-        String attributeNamespace = convertQNameToNamespace(attributeQName, element);
-        if (attributeName.length() == 0) {
-            throw new ParserConfigurationException("name attribute has to be set for element mapping configuration");
-        }
-        config.setAttributeName(attributeName);
-        config.setAttributeNamespace(attributeNamespace);
+        String ignoreWhiteSpace = element.getAttribute("ignore-white-space");
+        config.setIgnoreWhiteSpaceNodes(Boolean.parseBoolean(ignoreWhiteSpace));
+        String append = element.getAttribute("append");
+        config.setAppend(Boolean.parseBoolean(append));
         context.getObjectTreeElement().addObject(config);
     }
     
@@ -58,6 +54,10 @@ public class AttributeMappingHandler extends MappingHandler implements ParsingHa
             return 1;
         } else if (occurrence.equals("0..1")) {
             return 0;
+        } else if (occurrence.equals("0..n")) {
+            return 0;
+        } else if (occurrence.equals("1..n")) {
+            return 1;
         } else if (occurrence.length() == 0) {
             return 0;
         } else {
@@ -71,6 +71,10 @@ public class AttributeMappingHandler extends MappingHandler implements ParsingHa
             return 1;
         } else if (occurrence.equals("0..1")) {
             return 1;
+        } else if (occurrence.equals("0..n")) {
+            return -1;
+        } else if (occurrence.equals("1..n")) {
+            return -1;
         } else if (occurrence.length() == 0) {
             return 1;
         } else {

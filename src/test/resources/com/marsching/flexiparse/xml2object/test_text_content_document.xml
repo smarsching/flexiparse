@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <test1>foo<!-- Separator for text nodes -->test1</test1>
+  <test2>foo<!-- Separator for text nodes -->test2</test2>
+  <test3>   <!-- Separator for text nodes -->test3</test3>
+</root>

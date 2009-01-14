@@ -34,10 +34,11 @@
     </annotation>
     <complexContent>
       <extension base="tns:genericMappingType">
-        <sequence>
+        <choice minOccurs="0" maxOccurs="unbounded">
           <element name="element" type="tns:childElementMappingType" minOccurs="0" maxOccurs="unbounded"></element>
           <element name="attribute" type="tns:attributeMappingType" minOccurs="0" maxOccurs="unbounded"></element>
-        </sequence>
+          <element name="text" type="tns:textMappingType" minOccurs="0"/>
+        </choice>
         <attribute name="deep-search" use="optional" default="false">
           <annotation>
             <documentation>
@@ -130,6 +131,13 @@
     </annotation>
     <complexContent>
       <extension base="tns:genericMappingType">
+        <attribute name="target-attribute" use="required">
+          <annotation>
+            <documentation>
+              Name of the corresponding attribute in the target Java class.
+            </documentation>
+          </annotation>
+        </attribute>
         <attribute name="occurrence" use="optional" default="0..1">
           <simpleType>
             <annotation>
@@ -147,18 +155,70 @@
     </complexContent>
   </complexType>
   
-  <simpleType name="occurrenceAttributeType">
+  <complexType name="textMappingType">
     <annotation>
       <documentation>
-        Defines how many times a mapped element may appear.
+        Defines the mapping of a text node to a target type.
       </documentation>
     </annotation>
-    <restriction base="string">
-      <enumeration value="1"/>
-      <enumeration value="0..1"/>
-      <enumeration value="1..n"/>
-      <enumeration value="0..n"/>
-    </restriction>
-  </simpleType>
+    <attribute name="target-type" default="java.lang.String">
+      <annotation>
+        <documentation>
+          Specifies the target type this tag is mapped to.
+          Defaults to "java.lang.String".
+        </documentation>
+      </annotation>
+    </attribute>
+    <attribute name="target-attribute" use="required">
+      <annotation>
+        <documentation>
+          Name of the corresponding attribute in the target Java class.
+        </documentation>
+      </annotation>
+    </attribute>
+    <attribute name="occurrence" use="optional" default="0..1">
+      <simpleType>
+        <annotation>
+          <documentation>
+            Defines how many times a mapped element may appear.
+          </documentation>
+        </annotation>
+        <restriction base="string">
+          <enumeration value="1"/>
+          <enumeration value="0..1"/>
+          <enumeration value="1..n"/>
+          <enumeration value="0..n"/>
+        </restriction>
+      </simpleType>
+    </attribute>
+    <attribute name="append" use="optional" default="false">
+      <annotation>
+        <documentation>
+          Defines whether all occurrences of text nodes in a given
+          context should be concatenated to one string.
+        </documentation>
+      </annotation>
+      <simpleType>
+        <restriction base="string">
+          <enumeration value="true"/>
+          <enumeration value="false"/>
+        </restriction>
+      </simpleType>
+    </attribute>
+    <attribute name="ignore-white-space" use="optional" default="false">
+      <annotation>
+        <documentation>
+          Defines whether text nodes that only contain white space
+          should be ignored.
+        </documentation>
+      </annotation>
+      <simpleType>
+        <restriction base="string">
+          <enumeration value="true"/>
+          <enumeration value="false"/>
+        </restriction>
+      </simpleType>
+    </attribute>
+  </complexType>
   
 </schema>

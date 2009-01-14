@@ -6,8 +6,8 @@
   <element name="configuration">
     <complexType>
       <sequence>
-        <element name="handler" type="tns:handlerType" maxOccurs="unbounded"></element>
-        <any namespace="http://www.marsching.com/2008/flexiparse/xml2objectNS" maxOccurs="unbounded"></any>
+        <element name="handler" type="tns:handlerType" minOccurs="0" maxOccurs="unbounded"></element>
+        <any namespace="http://www.marsching.com/2008/flexiparse/xml2objectNS" minOccurs="0" maxOccurs="unbounded"></any>
       </sequence>
     </complexType>
   </element>

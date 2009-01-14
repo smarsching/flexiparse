@@ -11,7 +11,11 @@
   </handler>
   
   <handler class="com.marsching.flexiparse.xml2object.configuration.internal.AttributeMappingHandler" run-order="start">
-    <match>//xo:attribute</match>
+    <match>//xo:element/xo:attribute</match>
+  </handler>
+  
+  <handler class="com.marsching.flexiparse.xml2object.configuration.internal.TextMappingHandler" run-order="start">
+    <match>//xo:element/xo:text</match>
   </handler>
   
 </configuration>

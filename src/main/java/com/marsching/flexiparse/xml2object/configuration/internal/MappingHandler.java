@@ -33,7 +33,6 @@ public abstract class MappingHandler {
     
     protected String getTargetType(Element element) {
         String targetType = element.getAttribute("target-type");
-        // TODO Use java.lang.String or guess type?
         if (targetType.length() == 0) {
             targetType = "java.lang.String";
         }

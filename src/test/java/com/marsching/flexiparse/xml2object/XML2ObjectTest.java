@@ -37,6 +37,12 @@ import com.marsching.flexiparse.xml2object.internal.TestObjectA;
  * @author Sebastian Marsching
  */
 public class XML2ObjectTest {
+    /**
+     * Test creating a custom object from an XML attribute and attaching
+     * it to another custom object.
+     * 
+     * @throws ParserException on error
+     */
     @Test
     public void testSimpleAttribute() throws ParserException {
         ClasspathConfiguredParser parser = new ClasspathConfiguredParser("com/marsching/flexiparse/xml2object/test_simple_attribute_config.xml");
@@ -47,6 +53,12 @@ public class XML2ObjectTest {
         assertEquals("test2", a.getB().toString());
     }
     
+    /**
+     * Tests whether parser throws an error, if a required attribute is 
+     * missing.
+     * 
+     * @throws ParserException if test is successful
+     */
     @Test(expected=ParserException.class)
     public void testMissingRequiredAttribute() throws ParserException {
         ClasspathConfiguredParser parser = new ClasspathConfiguredParser("com/marsching/flexiparse/xml2object/test_missing_required_attribute_config.xml");
@@ -56,6 +68,12 @@ public class XML2ObjectTest {
         TestObjectA a = coll.iterator().next();
     }
     
+    /**
+     * Tests the map support by inserting String key / value pairs
+     * into a map and testing for their presence.
+     * 
+     * @throws ParserException on error
+     */
     @Test
     public void testStringMap() throws ParserException {
         ClasspathConfiguredParser parser = new ClasspathConfiguredParser("com/marsching/flexiparse/xml2object/test_string_map_config.xml");
@@ -66,6 +84,12 @@ public class XML2ObjectTest {
         assertEquals("foo2", map.get("test2"));
     }
     
+    /**
+     * Tests the collection support by inserting String values into
+     * a collection and testing for their presence.
+     * 
+     * @throws ParserException on error
+     */
     @Test
     public void testStringCollection() throws ParserException {
         ClasspathConfiguredParser parser = new ClasspathConfiguredParser("com/marsching/flexiparse/xml2object/test_string_collection_config.xml");
@@ -74,6 +98,21 @@ public class XML2ObjectTest {
         Collection<String> coll = root.getObjectsOfTypeFromSubTree(Collection.class).iterator().next();
         assertTrue(coll.contains("foo1"));
         assertTrue(coll.contains("foo2"));
+    }
+    
+    /**
+     * Tests the support for text nodes.
+     * 
+     * @throws ParserException on error
+     */
+    @Test
+    public void testTextContent() throws ParserException {
+        ClasspathConfiguredParser parser = new ClasspathConfiguredParser("com/marsching/flexiparse/xml2object/test_text_content_config.xml");
+        ObjectTreeElement root = parser.parse(this.getClass().getClassLoader().getResourceAsStream("com/marsching/flexiparse/xml2object/test_text_content_document.xml"));
+        Collection<String> coll = root.getObjectsOfTypeFromSubTree(String.class);
+        assertTrue(coll.contains("test1"));
+        assertTrue(coll.contains("footest2"));
+        assertTrue(coll.contains("test3"));
     }
     
 }
