@@ -7,6 +7,7 @@
     <title>fleXiParse Manual</title>
     <copyright>
       <year>2008</year>
+      <year>2009</year>
       <holder>Sebastian Marsching</holder>
     </copyright>
     <author>
@@ -111,22 +112,65 @@ ObjectTreeElement result = parser.parse(new File("test.xml"));
   "
 >
   <handler class="com.example.MyHandler">
-    <match>/x:addressbook/x:person/x:</match>
+    <match>/x:addressbook/x:person/x:address</match>
   </handler>
 </configuration>
 ]]></programlisting>
+    <para>
+      This configuration defines a handler using the class
+      <classname>com.example.MyHandler</classname> that will be invoked
+      for each element matched by the XPath expression. As you can see, the
+      the XPath expression uses namespace prefixes that are defined in
+      the context of the <tag>match</tag> tag.
+    </para>
+    <section>
+      <title>Run order</title>
+      <para>
+        When the parser walks through the DOM tree, there are two different 
+        points for each node where the corresponding handlers can be called: 
+        Either before the child nodes of the node are processed or after the
+        child nodes have been processed. This might be relevant if there are
+        handlers attached to one of the child nodes as this handler might either
+        expect some data that has been attached the object tree by the handler 
+        for the parent node or might itself attach some data to the object tree
+        that is then used by one of the parent node's handlers. Therefore you 
+        can define a run level for each handler. Valid run levels are
+        <literal>start</literal>, <literal>end</literal> and 
+        <literal>both</literal> (<literal>start</literal> is the default).
+        Handlers with run level <literal>start</literal> will be called
+        <emphasis>before</emphasis> the child nodes are processed. Handlers with
+        run level <literal>end</literal> are called <emphasis>after</emphasis>
+        the child nodes have been processed. Handlers with run level
+        <literal>both</literal> are called <emphasis>before</emphasis> as well
+        as <emphasis>after</emphasis> the child nodes have been processed.
+      </para>
+<programlisting language="xml"><![CDATA[
+<configuration
+  xmlns="http://www.marsching.com/2008/flexiparse/configurationNS"
+  xmlns:x="http://www.example.com/exampleNS"
+  xmlns:xsi="http://http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.marsching.com/2008/flexiparse/configurationNS 
+    http://www.marsching.com/2008/flexiparse/flexiparse-configuration.xsd
+  "
+>
+  <handler class="com.example.PersonHandler" run-level="end">
+    <match>/x:addressbook/x:person</match>
+  </handler>
+  
+  <handler class="com.example.AddressHandler">
+    <match>/x:addressbook/x:person/x:address</match>
+  </handler>
+</configuration>
+]]></programlisting>
+      <para>
+        In this example the handler
+        <classname>com.example.PersonHandler</classname> will be called after
+        the child nodes have been processed and might therefore collect objects
+        from the object tree that have been created by the
+        <classname>com.example.AddressHandler</classname>.
+      </para>
+    </section>
   </chapter>
   
-  <!-- 
-  <xi:include href="reference/preface.xml" />
-  <xi:include href="reference/installation.xml" />
-  <xi:include href="reference/architecture.xml" />
-  <xi:include href="reference/configuration.xml" />
-  <xi:include href="reference/xslt.xml" />
-  <xi:include href="reference/concepts.xml" />
-  <xi:include href="reference/advancedtopics.xml" />
-  <xi:include href="reference/module-support.xml" />
-  <xi:include href="reference/glossary.xml" />
-  -->
-
 </book>
