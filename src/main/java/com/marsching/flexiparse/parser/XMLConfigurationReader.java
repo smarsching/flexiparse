@@ -46,6 +46,12 @@ public class XMLConfigurationReader {
 	private Parser parser;
 	private Parser targetParser;
 	
+	/**
+	 * Constructs a new configuration reader that will configure the supplied
+	 * parser when the {@link #readConfiguration(InputSource)} method is called.
+	 * 
+	 * @param parser parser that will be configured by this reader
+	 */
 	public XMLConfigurationReader(Parser parser) {
 		this(parser, false);
 	}

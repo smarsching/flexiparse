@@ -75,6 +75,9 @@ public class SimpleParser implements Parser {
 	 */
 	protected LinkedHashSet<NodeHandler> nodeHandlers = new LinkedHashSet<NodeHandler>();
 	
+	/**
+	 * Stores the XML to object mapping configurations for this parser
+	 */
 	protected LinkedHashSet<ElementMappingConfiguration> mappingConfigurations = new LinkedHashSet<ElementMappingConfiguration>();
 	
 	/**
