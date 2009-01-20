@@ -21,7 +21,6 @@ package com.marsching.flexiparse.objectree;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Set;
@@ -69,25 +68,6 @@ public class DefaultMutableObjectTreeElement implements
 
 	public Collection<? extends MutableObjectTreeElement> getChildren() {
 		return Collections.unmodifiableCollection(children);
-	}
-
-	public <T> T getFirstObjectOfType(Class<? extends T> type) {
-		Iterator<T> i = getObjectsOfType(type).iterator();
-		if (i.hasNext()) {
-			return i.next();
-		} else {
-			return null;
-		}
-		
-	}
-
-	public <T> T getFirstObjectOfTypeFromTree(Class<? extends T> type) {
-		Iterator<T> i = getObjectsOfTypeFromTopTree(type).iterator();
-		if (i.hasNext()) {
-			return i.next();
-		} else {
-			return null;
-		}
 	}
 
 	public Collection<Object> getObjects() {
