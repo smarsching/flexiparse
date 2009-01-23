@@ -26,7 +26,7 @@ import java.util.Collection;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import com.marsching.flexiparse.objectree.ObjectTreeElement;
+import com.marsching.flexiparse.objecttree.ObjectTreeElement;
 import com.marsching.flexiparse.parser.exception.ParserException;
 import com.marsching.flexiparse.xml2object.configuration.ElementMappingConfiguration;
 

@@ -26,7 +26,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.marsching.flexiparse.objectree.ObjectTreeElement;
+import com.marsching.flexiparse.objecttree.ObjectTreeElement;
 import com.marsching.flexiparse.parser.ClasspathConfiguredParser;
 import com.marsching.flexiparse.parser.exception.ParserException;
 import com.marsching.flexiparse.xml2object.internal.TestObjectA;

@@ -1,5 +1,5 @@
-/* 
- * fleXiParse - Copyright 2008 Sebastian Marsching
+/*
+ * fleXiParse - Copyright 2008-2009 Sebastian Marsching
  * 
  * This file is part of fleXiParse.
  * 
@@ -14,28 +14,23 @@
  * GNU Lesser General Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser General Public License
- * along with fleXiParse.  If not, see <http://www.gnu.org/licenses/>. 
+ * along with fleXiParse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.marsching.flexiparse.objectree;
+package com.marsching.flexiparse.objecttree;
+
 
 /**
- * Interface implemented by objects that provide a subtree of 
- * {@link ObjectTreeElement}s. If an object attached to a 
- * {@link ObjectTreeElement} implements this interface, the
- * {@link ObjectTreeElement#getObjectsOfTypeFromSubTree(Class)}
- * method will include the subtree provided by this object in 
- * its search.
+ * Flag class for controlling the parser using the object tree.
+ * If an instance of this class is attached to a node in the object
+ * tree during the <code>START</code> phase of the processing of the
+ * corresponding XML element, the child elements of the XML element are
+ * not processed. If the instance is added later (e.g. while processing one
+ * of the child elements or during the <code>END</code> phase), it has no
+ * effect.
  * 
  * @author Sebastian Marsching
  */
-public interface SubObjectTree {
-	
-	/**
-	 * Returns the root node of the subtree provided by this object.
-	 * 
-	 * @return Root node of subtree
-	 */
-	ObjectTreeElement getRoot();
-	
+public class DisableParsingFlag {
+    
 }

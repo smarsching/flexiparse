@@ -29,7 +29,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.marsching.flexiparse.objectree.ObjectTreeElement;
+import com.marsching.flexiparse.objecttree.ObjectTreeElement;
 import com.marsching.flexiparse.parser.exception.ParserConfigurationException;
 import com.marsching.flexiparse.parser.exception.ParserException;
 import com.marsching.flexiparse.parser.internal.BaseConfigurationNodeHandler;

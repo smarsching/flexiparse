@@ -17,7 +17,7 @@
  * along with fleXiParse.  If not, see <http://www.gnu.org/licenses/>. 
  */
 
-package com.marsching.flexiparse.objectree;
+package com.marsching.flexiparse.objecttree;
 
 import java.util.Collection;
 

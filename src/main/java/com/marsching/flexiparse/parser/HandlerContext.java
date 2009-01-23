@@ -22,7 +22,7 @@ package com.marsching.flexiparse.parser;
 import org.w3c.dom.Node;
 
 import com.marsching.flexiparse.configuration.RunOrder;
-import com.marsching.flexiparse.objectree.ObjectTreeElement;
+import com.marsching.flexiparse.objecttree.ObjectTreeElement;
 
 /**
  * Provides context information to a {@link ParsingHandler}.
