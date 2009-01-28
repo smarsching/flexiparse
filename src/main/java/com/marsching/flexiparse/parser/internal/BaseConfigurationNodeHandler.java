@@ -90,6 +90,9 @@ public class BaseConfigurationNodeHandler implements NodeHandler {
                 try {
                     list.add(xpath.compile("/c:configuration/c:handler"));
                     list.add(xpath.compile("/c:configuration/c:handler/c:match"));
+                    list.add(xpath.compile("/c:configuration/c:handler/c:preceding-handler"));
+                    list.add(xpath.compile("/c:configuration/c:handler/c:following-handler"));
+                    // Deprecated, will be removed in future releases
                     list.add(xpath.compile("/c:configuration/c:handler/c:preceding-module"));
                     list.add(xpath.compile("/c:configuration/c:handler/c:following-module"));
                 } catch (XPathExpressionException e) {
@@ -135,10 +138,10 @@ public class BaseConfigurationNodeHandler implements NodeHandler {
                 conf.runOrder = RunOrder.START;
             }
             context.getObjectTreeElement().addObject(conf);
-        } else if (element.getTagName().equals("preceding-module")) {
+        } else if (element.getTagName().equals("preceding-handler") || element.getTagName().equals("preceding-module")) {
             SimpleHandlerConfiguration conf = context.getObjectTreeElement().getObjectsOfTypeFromTopTree(SimpleHandlerConfiguration.class).iterator().next();
             conf.precedingModules.add(element.getTextContent());
-        } else if (element.getTagName().equals("following-module")) {
+        } else if (element.getTagName().equals("following-handler") || element.getTagName().equals("following-module")) {
             SimpleHandlerConfiguration conf = context.getObjectTreeElement().getObjectsOfTypeFromTopTree(SimpleHandlerConfiguration.class).iterator().next();
             conf.followingModules.add(element.getTextContent());
         } else if (element.getTagName().equals("match")) {

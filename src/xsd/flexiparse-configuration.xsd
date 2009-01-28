@@ -14,9 +14,9 @@
   
   <complexType name="handlerType">
     <sequence>
-      <element name="preceding-module" minOccurs="0" maxOccurs="unbounded" type="tns:nonZeroLengthString">
+      <element name="preceding-handler" minOccurs="0" maxOccurs="unbounded" type="tns:nonZeroLengthString">
       </element>
-      <element name="following-module" minOccurs="0" maxOccurs="unbounded" type="tns:nonZeroLengthString">
+      <element name="following-handler" minOccurs="0" maxOccurs="unbounded" type="tns:nonZeroLengthString">
       </element>
       <element name="match" maxOccurs="unbounded" type="tns:nonZeroLengthString"></element>
     </sequence>
