@@ -83,7 +83,11 @@ ObjectTreeElement result = parser.parse(new File("test.xml"));
         using the configuration path <literal>com/example/myhandlers.xml</literal>.
         This means that the handler configuration is expected in a file called 
         <filename>myhandlers.xml</filename> that is in the 
-        <package>com.example</package> package of the class path.
+        <package>com.example</package> package of the class path. If there is 
+        more than one file (e.g. same file name in same package in different 
+        JARs) <emphasis>all</emphasis> of the files found will be used. Thus
+        the set of handlers can be extended by modules just by placing the 
+        configuration file in the right package.
       </para>
       <para>
         Then the parsers's <methodname>parse</methodname> method is called to
@@ -93,14 +97,22 @@ ObjectTreeElement result = parser.parse(new File("test.xml"));
         attached by the handlers during the parsing process.
       </para>
     </section>
+    <section>
+      <title>Excluding Fragments of the XML Tree from the Parsing Process</title>
+      <para>
+        See <xref linkend="objecttree.exclude"/>.
+      </para>
+    </section>
   </chapter>
   
   <chapter xml:id="handlerconfiguration">
     <title>Handler XML Configuration Format</title>
-    <para>
-      The XML file containing the handler configuration has a very simple
-      format:
-    </para>
+    <section>
+      <title>General Syntax</title>
+      <para>
+        The XML file containing the handler configuration has a very simple
+        format:
+      </para>
 <programlisting language="xml"><![CDATA[
 <configuration
   xmlns="http://www.marsching.com/2008/flexiparse/configurationNS"
@@ -116,13 +128,14 @@ ObjectTreeElement result = parser.parse(new File("test.xml"));
   </handler>
 </configuration>
 ]]></programlisting>
-    <para>
-      This configuration defines a handler using the class
-      <classname>com.example.MyHandler</classname> that will be invoked
-      for each element matched by the XPath expression. As you can see, the
-      the XPath expression uses namespace prefixes that are defined in
-      the context of the <tag>match</tag> tag.
-    </para>
+      <para>
+        This configuration defines a handler using the class
+        <classname>com.example.MyHandler</classname> that will be invoked
+        for each element matched by the XPath expression. As you can see, the
+        the XPath expression uses namespace prefixes that are defined in
+        the context of the <tag>match</tag> tag.
+      </para>
+    </section>
     <section>
       <title>Run order</title>
       <para>
@@ -169,6 +182,349 @@ ObjectTreeElement result = parser.parse(new File("test.xml"));
         the child nodes have been processed and might therefore collect objects
         from the object tree that have been created by the
         <classname>com.example.AddressHandler</classname>.
+      </para>
+    </section>
+    <section>
+      <title>Handler Dependencies</title>
+      <para>
+        Each handler may specify an id using the <tag class="attribute">id</tag>
+        attribute. If no explicit id is specified, the handle's class name is
+        implicitly used as the id. The id has to be unique, that is there must
+        not be more than one handler using the same id. 
+      </para>
+      <para>
+        Other handlers may specify run order dependencies related to other
+        handlers using the <tag>preceding-handler</tag> and 
+        <tag>following-handler</tag> tags. These dependencies are only 
+        considered if both handlers are acting on the same node. Otherwise a 
+        dependency will be silently ignored.
+      </para>
+<programlisting language="xml"><![CDATA[
+<configuration
+  xmlns="http://www.marsching.com/2008/flexiparse/configurationNS"
+  xmlns:x="http://www.example.com/exampleNS"
+  xmlns:xsi="http://http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.marsching.com/2008/flexiparse/configurationNS 
+    http://www.marsching.com/2008/flexiparse/flexiparse-configuration.xsd
+  "
+>
+  <handler class="com.example.PersonHandler" run-level="end">
+    <match>/x:addressbook/x:person</match>
+  </handler>
+  
+  <handler class="com.example.AddressHandler" id="com.example.SomeOtherId">
+    <match>/x:addressbook/x:person/x:address</match>
+  </handler>
+  
+  <handler class="com.example.VerificationHandler">
+    <preceding-handler>com.example.PersonHandler</preceding-handler>
+    <preceding-handler>com.example.SomeOtherId</preceding-handler>
+    <match>/x:addressbook/x:person/x:address</match>
+    <match>/x:addressbook/x:person</match>
+  </handler>
+</configuration>
+]]></programlisting>
+      <para>
+        In this example the <classname>VerificationHandler</classname> is
+        called <emphasis>after</emphasis> the 
+        <classname>PersonHandler</classname> or 
+        <classname>AddressHandler</classname> (depending on the node being 
+        processed) have been called. Thus the verification handler may use
+        objects from the object tree that have been placed there by the other
+        handler for the same node. Placing 
+        <literal>&lt;following-handler&gt;com.example.Verificationhandler&lt;/following-handler&gt;</literal>
+        in the configurations of the <classname>PersonHandler</classname> and
+        <classname>AddressHandler</classname> instead of the 
+        <tag>preceding-handler</tag> declarations in the 
+        <classname>VerificationHandler</classname> configuration would have the 
+        same effect.
+        In fact even both could be present at the same time, because these
+        constraints do not conflict. If there are conflicts (circular 
+        dependency graph), an exception is thrown by the parser.
+      </para>
+    </section>
+  </chapter>
+  
+  <chapter>
+    <title>Object Tree</title>
+    <section>
+      <title>Concept</title>
+      <para>
+        The object tree is used to store the result of the parsing process
+        and to share data between different handlers (or several invocations
+        of the same handler). The object tree has one root node for the 
+        document being parsed and one child node for each XML element in the
+        document (including the root element). The tree structure of these
+        nodes reflects the tree structure of the parsed document.
+      </para>
+      <para>
+        Each time a handler is invoked, a reference to an object tree element is
+        passed. This object tree element corresponds to the XML element (or the
+        parent XML element for non-element nodes) being processed at this time. 
+      </para>
+      <para>
+        The handler can use this object tree element to attach or retrieve Java
+        objects created in the context of the current node or to navigate 
+        through the object tree and retrieve Java attached to other object tree
+        elements.
+      </para>
+    </section>
+    <section>
+      <title>Attaching Objects</title>
+      <para>
+        A handler can attach an arbitrary Java object to an object tree element
+        by invoking the <methodname>addObject(Object object)</methodname> 
+        method. By convention, a handler should usually only attach objects to
+        the object tree element corresponding to the current context XML 
+        element, although there is no technical restriction requiring or
+        enforcing this behavior. 
+      </para>
+    </section>
+    <section>
+      <title>Retrieving Objects</title>
+      <para>
+        The method <methodname>getObjects()</methodname> returns all objects
+        attached to the object tree element regardless of their type. The 
+        objects are returned in the order they have been attached to the object
+        tree element.
+      </para>
+      <para>
+        The method <methodname>getObjectsOfType(Class type)</methodname> returns
+        all objects attached to the object tree element that are sub-types of
+        the type specified by the parameter <parameter>type</parameter>. The 
+        objects are returned in the order they have been attached to the object
+        tree element. 
+      </para>
+      <para>
+        The method 
+        <methodname>getObjectsOfTypeFromSubTree(Class type)</methodname> returns
+        objects of the given type (or a sub-type) that are attached to the 
+        object tree element or one its descendant elements. The order is parent
+        elements before child elements, child elements on the same level in the
+        order of the corresponding XML elements in the source document and 
+        objects attached to the same element in the order they have been added 
+        to the element. 
+      </para>
+      <para>
+        The method 
+        <methodname>getObjectsOfTypeFromTopTree(Class type)</methodname> returns
+        objects of the given type (or a sub-type) that are attached to the 
+        object tree element or one its ancestor elements. The order is child
+        element before parent element and objects attached to the same element 
+        in the order they have been added to the element. 
+      </para>
+    </section>
+    <section>
+      <title>Initial Objects</title>
+      <para>
+        When invoking the <methodname>parse</methodname> method of the
+        <interfacename>Parser</interfacename> interface, arbitrary objects can 
+        be passed as parameters. These objects are attached to the root element
+        of the object tree before the parsing process begins. In this way 
+        parameters can be passed from the code invoking the parser to the
+        parsing handlers.
+      </para>
+    </section>
+    <section xml:id="objecttree.exclude">
+      <title>Excluding Fragments of the XML Tree from the Parsing Process</title>
+      <para>
+        If an instance of 
+        <classname>com.marsching.flexiparse.objecttree.DisableParsingFlag</classname>
+        is attached to an XML element's object tree element before the child
+        nodes of the XML element have been processed, these child nodes are
+        excluded from the parsing process. This mechanism can be used in order
+        to exclude certain parts of the XML tree from the parsing process based
+        on runtime parameters. 
+      </para>
+    </section>
+  </chapter>
+  
+  <chapter>
+    <title>XML to Object Mapping</title>
+    <section>
+      <title>Concept</title>
+      <para>
+        While fleXiParse's handler concept provides a maximum of flexibility 
+        and extensibility, writing a hander for every tag can be a 
+        time-consuming task. Therefore fleXiParse provides a facility for the
+        automatic mapping of XML data to objects. This facility can be used
+        by using configuration tags from the
+        <uri>http://www.marsching.com/2008/flexiparse/xml2objectNS</uri> 
+        namespace.
+      </para>
+    </section>
+    <section>
+      <title>General Configuration Syntax</title>
+<programlisting language="xml"><![CDATA[
+<configuration
+  xmlns="http://www.marsching.com/2008/flexiparse/configurationNS"
+  xmlns:t="http://www.example.com/exampleNS"
+  xmlns:xo="http://www.marsching.com/2008/flexiparse/xml2objectNS"
+  xmlns:xsi="http://http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.marsching.com/2008/flexiparse/configurationNS 
+    http://www.marsching.com/2008/flexiparse/flexiparse-configuration.xsd
+    http://www.marsching.com/2008/flexiparse/xml2objectNS
+    http://www.marsching.com/2008/flexiparse/flexiparse-xml2object.xsd
+  "
+>
+  <xo:element name="t:test" target-type="com.example.ExampleObjectA">
+    <xo:attribute name="a" target-attribute="a"/>
+    <xo:attribute name="b" target-attribute="b" target-type="com.example.ExampleObjectB" occurrence="1" />
+  </xo:element>
+</configuration>
+]]></programlisting>
+      <para>
+        XML to object mapping configurations use the same configuration
+        files but a different namespace than handlers. There are three kinds of
+        mappings: Mappings for elements, attributes, or text nodes.
+      </para>
+    </section>
+    <section xml:id="xml2object.element_mappings">
+      <title>Element Mappings</title>  
+      <para>
+        The mapping for an XML element is defined using the <tag>element</tag> 
+        tag. The <tag class="attribute">name</tag> attribute takes a local
+        or qualified name. If a local name is given, the mapping matches 
+        elements with this name using no namespace. If the qualified form is 
+        used, the mapping matches elements with this name and the namespace 
+        bound to the prefix in the context of the configuration element.
+      </para>
+      <para>
+        The <tag class="attribute">target-type</tag> attribute specifies the
+        name of the Java type the XML element is mapped to. This has to be
+        either a Java primitive (e.g. <literal>int</literal>, 
+        <literal>boolean</literal>) or fully qualified type name (e.g. 
+        <classname>java.lang.String</classname> - the default). The type has to 
+        have a default constructor.
+      </para>
+      <para>
+        The <tag class="attribute">target-attribute</tag> attribute specifies
+        the name of the attribute in the parent Java object the object created 
+        for this mapping should be saved in. This attribute is only used if the
+        corresponding tag is encountered within another tag handled by this XML 
+        to Object facility. There has to be a setter method (adhering the Java 
+        Beans convention) for the specified attribute in the parent object. If 
+        the special name <literal>!mapentry</literal> is used, the parent object
+        has to implement <interfacename>java.util.Map</interfacename> and the
+        object has to implement 
+        <interfacename>java.util.Map.Entry</interfacename>. In this case the 
+        object will be added to the parent map. If the special name
+        <literal>!collectionentry</literal> is used, the parent object has to
+        implement <interfacename>java.util.Collection</interfacename> and the 
+        object will be added to the parent collection. If the special name
+        <literal>!parent</literal> is used, the parent object will be replaced
+        by this object.
+      </para>
+      <para>
+        If the <tag class="attribute">deep-search</tag> attribute is set to
+        <tag class="attvalue">true</tag>, the XML to Object mapper will not 
+        restrict the search to direct child elements, but will use all
+        descendant elements when looking for elements matching the child 
+        mapping configurations.
+      </para>
+    </section>
+    <section>
+      <title>Root Element mappings</title>
+      <para>
+        Root element mappings have no parent mappings.This kind of mapping is
+        used for every element which matches the specified namespace and
+        local name. When processing the child nodes of a mapped element, the
+        mappings nested inside the parent definition will be used first. 
+        However, if no matching mapping is found, the root mappings with the
+        <tag class="attribute">target-attribute</tag> set will be used, too.
+      </para>
+      <para>
+        The <tag class="attribute">occurrence</tag> attribute can be set to
+        either <tag class="attvalue">0..1</tag>, allowing a maximum of
+        one instances per context, or <tag class="attvalue">0..n</tag> 
+        allowing an unlimited number of instances per context. 
+      </para>
+    </section>
+    <section>
+      <title>Nested Element Mappings</title>
+      <para>
+        Nested element mappings are children of other nested or root element 
+        mappings. The <tag class="attribute">target-attribute</tag> attribute 
+        is mandatory for this kind of mappings. 
+      </para>
+      <para>
+        The <tag class="attribute">occurrence</tag> attribute may be set to
+        either <tag class="attvalue">0..1</tag> (default), 
+        <tag class="attvalue">0..n</tag>, <tag class="attvalue">1</tag> or
+        <tag class="attvalue">1..n</tag>. 
+      </para>
+    </section>
+    <section xml:id="xml2object.attribute_mappings">
+      <title>Attribute mappings</title>
+      <para>
+        Attribute mappings basically support the settings described in 
+        <xref linkend="xml2object.element_mappings"/>. However, the 
+        target Java type has to have a constructor taking a single 
+        parameter of type <classname>java.lang.String</classname> instead of
+        a default constructor. The <tag class="attribute">deep-search</tag> 
+        attribute does not exist for attribute mappings.
+      </para>
+      <para>
+        The <tag class="attribute">occurrence</tag> attribute can be set to
+        either <tag class="attvalue">0..1</tag> (default) or 
+        <tag class="attvalue">1</tag>.
+      </para>
+    </section>
+    <section>
+      <title>Text mappings</title>
+      <para>
+        Text mappings have the same options as 
+        <link linkend="xml2object.element_mappings">attribute mappings</link>, 
+        however there is no <tag class="attribute">name</tag> attribute and 
+        the <tag class="attribute">occurrence</tag> attribute may be 
+        set to either <tag class="attvalue">0..1</tag> (default), 
+        <tag class="attvalue">0..n</tag>, <tag class="attvalue">1</tag> or
+        <tag class="attvalue">1..n</tag>. 
+      </para>
+      <para>
+        If the <tag class="attribute">append</tag> attribute is set to
+        <tag class="attvalue">true</tag>, all text nodes in a given context
+        are concatenated creating one single string.
+      </para>
+      <para>
+        If the <tag class="attribute">ignore-white-space</tag> attribute is
+        set to <tag class="attvalue">true</tag>, text nodes that contain
+        white space only are ignored.
+      </para>
+    </section>
+    <section>
+      <title>Using Collections</title>
+      <para>
+        Objects can be added to collections using the special target attribute
+        <literal>!collectionentry</literal>.
+      </para>
+<programlisting language="xml"><![CDATA[
+<xo:element name="addressbook" target-type="java.util.HashSet">
+  <xo:element name="person" target-attribute="!collectionentry" target-type="com.example.Person">
+    ...
+  </xo:element>
+</xo:element>
+]]></programlisting>
+    </section>
+    <section>
+      <title>Using Maps</title>
+      <para>
+        Map entries can be added to a map using the special target attribute
+        <literal>!mapentry</literal>. The entries have to implement
+        <interfacename>java.util.Map.Entry</interfacename>. If this interface
+        is specified as the target type of a mapping, fleXiParse will use
+        an internal implementation which has a <literal>key</literal> and 
+        <literal>value</literal> attribute.
+<programlisting language="xml"><![CDATA[
+<xo:element name="parameters" target-type="java.util.HashMap">
+  <xo:element name="parameter" target-attribute="!mapentry" target-type="java.util.Map.Entry">
+    <xo:attribute name="name" target-attribute="key"/>
+    <xo:text target-attribute="value"/>
+  </xo:element>
+</xo:element>
+]]></programlisting>
       </para>
     </section>
   </chapter>
