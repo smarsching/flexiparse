@@ -6,7 +6,7 @@
   xmlns:tns="http://www.marsching.com/2008/flexiparse/xml2objectNS"
 >
   
-  <element name="Element" type="tns:rootElementMappingType"></element>
+  <element name="element" type="tns:rootElementMappingType"></element>
   
   <complexType name="genericMappingType">
     <attribute name="name" use="required">
