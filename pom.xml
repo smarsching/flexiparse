@@ -4,7 +4,7 @@
   <groupId>com.marsching.flexiparse</groupId>
   <artifactId>flexiparse</artifactId>
   <packaging>jar</packaging>
-  <version>0.2.1</version>
+  <version>0.2.2-SNAPSHOT</version>
   <name>fleXiParse</name>
   <description>
     fleXiParse is a DOM based extensible XML parser framework.
