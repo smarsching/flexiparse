@@ -415,6 +415,10 @@ public class XML2ObjectNodeHandler implements NodeHandler {
     }
     
     private String expandShortTypes(String type) {
+        return expandShortTypes(type, true);
+    }
+    
+    private String expandShortTypes(String type, boolean enableSpecialTypes) {
         if (type.equals("boolean")) {
             type = "java.lang.Boolean";
         } else if (type.equals("byte")) {
@@ -431,7 +435,7 @@ public class XML2ObjectNodeHandler implements NodeHandler {
             type = "java.lang.Long";
         } else if (type.equals("short")) {
             type = "java.lang.Short";
-        } else if (type.equals("!mapentry")) {
+        } else if (enableSpecialTypes && type.equals("!mapentry")) {
             // Special internal type for map entries
             type = "com.marsching.flexiparse.xml2object.parser.internal.MapEntry";
         }
@@ -453,7 +457,7 @@ public class XML2ObjectNodeHandler implements NodeHandler {
                 continue;
             }
             if (m.getParameterTypes().length == 1
-                    && m.getParameterTypes()[0].isAssignableFrom(value.getClass())) {
+                    && assignableTypes(m.getParameterTypes()[0], value.getClass())) {
                 try {
                     m.invoke(obj, value);
                     return;
@@ -469,6 +473,39 @@ public class XML2ObjectNodeHandler implements NodeHandler {
         throw new ParserException("Could not find setter method for attribute " + name + " in type " + type.getName());
     }
     
+    /**
+     * Checks whether object of type class2 can be assigned to object of 
+     * type class2.
+     * 
+     * @param class1 type of target object 
+     * @param class2 type of source object
+     * @return <code>true</code> if and only if class2 can be assigned to class1
+     */
+    private boolean assignableTypes(Class<?> class1, Class<?> class2) {
+        if (class1.isPrimitive() && class2.isPrimitive()) {
+            return class1.equals(class2);
+        } else if (!class1.isPrimitive() && !class2.isPrimitive()) {
+            return class1.isAssignableFrom(class2);
+        } else {
+            Class<?> primitiveClass;
+            Class<?> complexClass;
+            if (class1.isPrimitive()) {
+                primitiveClass = class1;
+                complexClass = class2;
+            } else {
+                primitiveClass = class2;
+                complexClass = class1;
+            }
+            String primitiveName = primitiveClass.getName();
+            String complexName = complexClass.getName();
+            if (expandShortTypes(primitiveName, false).equals(complexName)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
     private void storeAttribute(Map<String, Object> attributesMap, String attributeName, Object attributeValue) {
         if (attributeName.equals("!mapentry") || attributeName.equals("!collectionentry")) {
             // There can be multiple values for this special

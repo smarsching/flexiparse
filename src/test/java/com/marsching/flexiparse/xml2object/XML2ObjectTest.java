@@ -30,6 +30,7 @@ import com.marsching.flexiparse.objecttree.ObjectTreeElement;
 import com.marsching.flexiparse.parser.ClasspathConfiguredParser;
 import com.marsching.flexiparse.parser.exception.ParserException;
 import com.marsching.flexiparse.xml2object.internal.TestObjectA;
+import com.marsching.flexiparse.xml2object.internal.TestObjectC;
 
 /**
  * Tests for the automatic XML to Java object mapping support.
@@ -115,4 +116,17 @@ public class XML2ObjectTest {
         assertTrue(coll.contains("test3"));
     }
     
+    /**
+     * Test setting a primitive property (boolean in this test).
+     * 
+     * @throws ParserException on error
+     */
+    @Test
+    public void testPrimitiveAttribute() throws ParserException {
+        ClasspathConfiguredParser parser = new ClasspathConfiguredParser("com/marsching/flexiparse/xml2object/test_primitive_attribute_config.xml");
+        ObjectTreeElement root = parser.parse(this.getClass().getClassLoader().getResourceAsStream("com/marsching/flexiparse/xml2object/test_primitive_attribute_document.xml"));
+        Collection<TestObjectC> coll = root.getObjectsOfTypeFromSubTree(TestObjectC.class);
+        TestObjectC c = coll.iterator().next();
+        assertEquals(true, c.getA());
+    }
 }
