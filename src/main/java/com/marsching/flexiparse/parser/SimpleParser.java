@@ -330,7 +330,9 @@ public class SimpleParser implements Parser {
 	
 	public ObjectTreeElement parse(File file, Object... rootObjects) throws ParserException {
 		try {
-			return parse(new FileInputStream(file), rootObjects);
+		    InputSource inputSource = new InputSource(new FileInputStream(file));
+		    inputSource.setSystemId(file.toURI().toASCIIString());
+			return parse(inputSource, rootObjects);
 		} catch (FileNotFoundException e) {
 			throw new ParserException("File \"" + file.getAbsolutePath() + "\" could not be found.", e);
 		}
