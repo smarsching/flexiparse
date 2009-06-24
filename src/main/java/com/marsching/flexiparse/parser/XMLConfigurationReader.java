@@ -63,10 +63,14 @@ public class XMLConfigurationReader {
         this.parser.addNodeHandler(configHandler);
 	    if (!baseOnly) {
 	        XMLConfigurationReader baseReader = new XMLConfigurationReader(this.parser, true);
+	        ClassLoader ccl = Thread.currentThread().getContextClassLoader();
+	        Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
             try {
                 baseReader.readConfiguration(new InputSource(this.getClass().getClassLoader().getResource("com/marsching/flexiparse/xml2object/configuration/internal/flexiparse-xml2object-configuration.xml").toExternalForm()));
             } catch (ParserException e) {
                 throw new RuntimeException("Unexpected error while reading internal configuration file", e);
+            } finally {
+                Thread.currentThread().setContextClassLoader(ccl);
             }
 	    }
 	}
@@ -103,7 +107,7 @@ public class XMLConfigurationReader {
 			ParsingHandler parsingHandler;
 			String className = configuration.getClassName();
 			try {
-				parsingHandler = Class.forName(className).asSubclass(ParsingHandler.class).newInstance();
+				parsingHandler = Class.forName(className, true, Thread.currentThread().getContextClassLoader()).asSubclass(ParsingHandler.class).newInstance();
 			} catch (InstantiationException e) {
 				throw new ParserConfigurationException("Could not instantiate handler class " + className, e);
 			} catch (IllegalAccessException e) {

@@ -444,7 +444,7 @@ public class XML2ObjectNodeHandler implements NodeHandler {
     
     private Class<?> loadType(String type) throws ParserException {
         try {
-            return Class.forName(type);
+            return Class.forName(type, true, Thread.currentThread().getContextClassLoader());
         } catch (ClassNotFoundException e) {
             throw new ParserException("Could not create instance of " + type, e);
         }
