@@ -78,12 +78,14 @@ public class XMLConfigurationReader {
 	/**
 	 * Parses the file provided by the InputSource and configures the
 	 * parser attached to this reader using the configuration data in the file.
+	 * Uses the supplied class loader to load classes.
 	 * 
 	 * @param source input source to read configuration from
+	 * @param classLoader class loader that is used to load handler classes
 	 * @throws ParserException if an error occurs while parsing
 	 *   the configuration
 	 */
-	public void readConfiguration(InputSource source) throws ParserException {
+	public void readConfiguration(InputSource source, ClassLoader classLoader) throws ParserException {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		dbf.setNamespaceAware(true);
 		dbf.setXIncludeAware(true);
@@ -101,7 +103,7 @@ public class XMLConfigurationReader {
 		} catch (IOException e) {
 			throw new ParserConfigurationException("Error while reading configuration from " + source.getSystemId(), e);
 		}
-		ObjectTreeElement ote = parser.parse(doc);
+		ObjectTreeElement ote = parser.parse(doc, classLoader);
 		Collection<SimpleHandlerConfiguration> configurations = ote.getObjectsOfTypeFromSubTree(SimpleHandlerConfiguration.class);
 		for (SimpleHandlerConfiguration configuration : configurations) {
 			ParsingHandler parsingHandler;
@@ -127,5 +129,18 @@ public class XMLConfigurationReader {
 		    }
 		}
 	}
+
+    /**
+     * Parses the file provided by the InputSource and configures the
+     * parser attached to this reader using the configuration data in the file.
+     * Uses the context class loader to load classes.
+     * 
+     * @param source input source to read configuration from
+     * @throws ParserException if an error occurs while parsing
+     *   the configuration
+     */
+	public void readConfiguration(InputSource configurationSource) throws ParserException {
+        readConfiguration(configurationSource, Thread.currentThread().getContextClassLoader());
+    }
 	
 }

@@ -28,6 +28,7 @@ public class MappingConfigurationImpl implements MappingConfiguration {
     protected int minOccurs;
     protected String targetAttribute;
     protected String targetType;
+    protected ClassLoader targetTypeClassLoader;
     
     public int getMaxOccurs() {
         return maxOccurs;
@@ -59,6 +60,14 @@ public class MappingConfigurationImpl implements MappingConfiguration {
     
     public void setTargetType(String targetType) {
         this.targetType = targetType;
+    }
+
+    public ClassLoader getTargetTypeClassLoader() {
+        return targetTypeClassLoader;
+    }
+    
+    public void setTargetTypeClassLoader(ClassLoader targetTypeClassLoader) {
+        this.targetTypeClassLoader = targetTypeClassLoader;
     }
     
 }

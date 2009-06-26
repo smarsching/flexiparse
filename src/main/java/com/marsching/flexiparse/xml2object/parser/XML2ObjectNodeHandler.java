@@ -195,7 +195,7 @@ public class XML2ObjectNodeHandler implements NodeHandler {
             // can be safely ignored.
             return;
         }
-        Object obj = createObjectFromString(mappingConfig.getTargetType(), attr.getValue());
+        Object obj = createObjectFromString(mappingConfig.getTargetType(), attr.getValue(), mappingConfig.getTargetTypeClassLoader());
         // Max occurs do not have to be checked, as an attribute can only
         // appear once per element
         storeAttribute(parentInfo.objectAttributes, mappingConfig.getTargetAttribute(), obj);
@@ -244,13 +244,13 @@ public class XML2ObjectNodeHandler implements NodeHandler {
                 }
             }
             if (concat != null) {
-                Object obj = createObjectFromString(config.getTargetType(), concat.toString());
+                Object obj = createObjectFromString(config.getTargetType(), concat.toString(), config.getTargetTypeClassLoader());
                 storeAttribute(info.objectAttributes, config.getTargetAttribute(), obj);
             }
         } else {
             for (String str : info.textContent) {
                 if (!ignoreWhiteSpace || str.trim().length() != 0) {
-                    Object obj = createObjectFromString(config.getTargetType(), str);
+                    Object obj = createObjectFromString(config.getTargetType(), str, config.getTargetTypeClassLoader());
                     storeAttribute(info.objectAttributes, config.getTargetAttribute(), obj);
                     count++;
                 }
@@ -300,7 +300,7 @@ public class XML2ObjectNodeHandler implements NodeHandler {
     private Object createObjectFromInfo(XML2ObjectInfo info) throws ParserException {
         ElementMappingConfiguration mappingConfig = info.configuration;
         String typeName = expandShortTypes(mappingConfig.getTargetType());
-        Class<?> type = loadType(typeName);
+        Class<?> type = loadType(typeName, mappingConfig.getTargetTypeClassLoader());
         Object obj = null;
         // Handle special "!parent" attribute replacing the object itself
         if (info.objectAttributes.containsKey("!parent")) {
@@ -361,12 +361,12 @@ public class XML2ObjectNodeHandler implements NodeHandler {
         return obj;
     }
     
-    private Object createObjectFromString(String type, String str) throws ParserException {
+    private Object createObjectFromString(String type, String str, ClassLoader classLoader) throws ParserException {
         type = expandShortTypes(type);
         if (type.equals("java.lang.String")) {
             return str;
         }
-        Class<?> objType = loadType(type);
+        Class<?> objType = loadType(type, classLoader);
         if (Enum.class.isAssignableFrom(objType)) {
             try {
                 @SuppressWarnings("unchecked")
@@ -442,9 +442,9 @@ public class XML2ObjectNodeHandler implements NodeHandler {
         return type;
     }
     
-    private Class<?> loadType(String type) throws ParserException {
+    private Class<?> loadType(String type, ClassLoader classLoader) throws ParserException {
         try {
-            return Class.forName(type, true, Thread.currentThread().getContextClassLoader());
+            return Class.forName(type, true, classLoader);
         } catch (ClassNotFoundException e) {
             throw new ParserException("Could not create instance of " + type, e);
         }

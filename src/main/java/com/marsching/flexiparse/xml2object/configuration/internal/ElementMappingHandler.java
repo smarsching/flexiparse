@@ -47,6 +47,7 @@ public class ElementMappingHandler extends MappingHandler implements ParsingHand
         ElementMappingConfigurationImpl config = new ElementMappingConfigurationImpl();
         Element element = (Element) context.getNode();
         config.setTargetType(getTargetType(element));
+        config.setTargetTypeClassLoader(getTargetTypeClassLoader(context));
         String targetAttribute = getTargetAttribute(element);
         // "target attribute" attribute is mandatory for child configurations
         if (!context.getObjectTreeElement().getObjectsOfTypeFromTopTree(ElementMappingConfiguration.class).isEmpty()

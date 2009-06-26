@@ -48,6 +48,19 @@ public class XMLConfiguredParser extends SimpleParser {
 	}
 	
 	/**
+     * Adds all handlers specified in the configuration file to this
+     * parser. Loads handler class with supplied class loader.
+     * 
+     * @param configurationSource input source to read configuration from
+     * @param classLoader class loader that is used to load handler classes
+     * @throws ParserException if an error occurs while parsing the
+     *   configuration file
+     */
+    public void addConfigurationSource(InputSource configurationSource, ClassLoader classLoader) throws ParserException {
+        reader.readConfiguration(configurationSource, classLoader);
+    }
+	
+	/**
 	 * Adds all handlers specified in all the configuration files to
 	 * this parser.
 	 * 

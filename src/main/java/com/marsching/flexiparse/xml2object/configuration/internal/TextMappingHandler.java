@@ -33,6 +33,7 @@ public class TextMappingHandler extends MappingHandler implements ParsingHandler
         TextMappingConfigurationImpl config = new TextMappingConfigurationImpl();
         Element element = (Element) context.getNode();
         config.setTargetType(getTargetType(element));
+        config.setTargetTypeClassLoader(getTargetTypeClassLoader(context));
         String targetAttribute = getTargetAttribute(element);
         // "target attribute" attribute is mandatory for child configurations
         if (targetAttribute.length() == 0) {

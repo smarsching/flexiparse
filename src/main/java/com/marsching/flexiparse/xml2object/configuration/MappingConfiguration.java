@@ -37,6 +37,16 @@ public interface MappingConfiguration {
     String getTargetType();
     
     /**
+     * Returns the class loader that should be used in order to load the class
+     * of the target type or <code>null</code> if the context class loader 
+     * should be used.
+     * 
+     * @return class loader for target type or <code>null</code> if context
+     * class loader should be used
+     */
+    ClassLoader getTargetTypeClassLoader();
+    
+    /**
      * Returns the name of the attribute that should be set to the value
      * represented by the data matching this mapping. For global mappings
      * (which have no parents and therefore no object with attributes that

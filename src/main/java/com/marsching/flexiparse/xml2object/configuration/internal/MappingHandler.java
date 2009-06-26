@@ -19,9 +19,12 @@
 
 package com.marsching.flexiparse.xml2object.configuration.internal;
 
+import java.util.Collection;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import com.marsching.flexiparse.parser.HandlerContext;
 import com.marsching.flexiparse.util.DOMBasedNamespaceContext;
 
 
@@ -37,6 +40,14 @@ public abstract class MappingHandler {
             targetType = "java.lang.String";
         }
         return targetType;
+    }
+    
+    protected ClassLoader getTargetTypeClassLoader(HandlerContext context) {
+        Collection<ClassLoader> classLoaders = context.getObjectTreeElement().getRoot().getObjectsOfType(ClassLoader.class);
+        if (classLoaders.size() != 1) {
+            throw new RuntimeException("Found more or less than one class loader attached to the root!");
+        }
+        return classLoaders.iterator().next();
     }
     
     protected String convertQNameToLocalName(String qName) {
