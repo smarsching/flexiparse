@@ -109,7 +109,7 @@ public class XMLConfigurationReader {
 			ParsingHandler parsingHandler;
 			String className = configuration.getClassName();
 			try {
-				parsingHandler = Class.forName(className, true, Thread.currentThread().getContextClassLoader()).asSubclass(ParsingHandler.class).newInstance();
+				parsingHandler = Class.forName(className, true, classLoader).asSubclass(ParsingHandler.class).newInstance();
 			} catch (InstantiationException e) {
 				throw new ParserConfigurationException("Could not instantiate handler class " + className, e);
 			} catch (IllegalAccessException e) {
