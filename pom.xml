@@ -126,6 +126,17 @@
           </postProcess>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <executions>
+          <id>sign-artifact</id>
+          <phase>verify</phase>
+          <goals>
+            <goal>sign</goal>
+          </goals>
+        </executions>
+      </plugin>
     </plugins>
   </build>
   <reporting>
