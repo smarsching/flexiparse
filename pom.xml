@@ -149,5 +149,23 @@
       -->
     </plugins>
   </reporting>
+  <scm>
+    <connection>scm:svn:https://ssl.marsching.biz/subversion/flexiparse</connection>
+    <developerConnection>scm:svn:https://ssl.marsching.biz/subversion/flexiparse</developerConnection>
+    <tag>HEAD</tag>
+    <url>https://ssl.marsching.biz/subversion/flexiparse</url>
+  </scm>
+  <distributionManagement>
+    <repository>
+      <id>flexiparse-releases</id>
+      <name>fleXiParse Releases Repository</name>
+      <url>https://ssl.marsching.biz/nexus/content/repositories/flexiparse-releases</url>
+    </repository>
+    <snapshotRepository>
+      <id>flexiparse-snapshots</id>
+      <name>fleXiParse Snapshots Repository</name>
+      <url>https://ssl.marsching.biz/nexus/content/repositories/flexiparse-snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
 
 </project>
